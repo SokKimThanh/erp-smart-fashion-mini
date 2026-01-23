@@ -28,7 +28,7 @@
     </scm>
     <properties>
         <start-class>com.smartfashion.erp.ErpApplication</start-class>
-        <java.version>17</java.version>
+        <java.version>21</java.version>
     </properties>
     <dependencies>
         <dependency>
