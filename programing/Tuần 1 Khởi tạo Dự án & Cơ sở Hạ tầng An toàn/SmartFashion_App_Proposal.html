@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartFashion - Ứng Dụng Quản Lý & Mua Sắm Áo Dài</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: Warm Neutrals & Deep Tradition -->
+    <!-- 
+        Background: #FAF9F6 (Off-white/Alabaster)
+        Primary Text: #374151 (Dark Gray)
+        Accent/Buttons: #92400E (Terracotta/Bronze)
+        Secondary: #D6D3D1 (Warm Gray)
+        Font: Montserrat (UI/Body), Merriweather (Headings - Serif)
+    -->
+
+    <!-- Application Structure Plan: 
+         1. Navigation: Simple tab-based switching to manage the single-page view without reloading.
+         2. Overview: High-level metrics and value proposition cards.
+         3. Admin Import: Interactive simulation of the camera scanning and AI classification process + Price Margin Chart.
+         4. Customer Engine: Form inputs for body measurements triggering a logic filter + Radar Chart for fit analysis.
+         5. Repair Service: Profile cards for tailors and a timeline visualizer for the booking process + Commission Chart.
+         6. Tech Specs: Acknowledgment of the offline DB and Unit Testing requirements.
+         
+         WHY: This structure separates the complex logic of "Admin" and "Customer" into digestible sections while keeping the "Repair" service distinct as it has a unique business model. 
+    -->
+
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #FAF9F6;
+            color: #374151;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Merriweather', serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .active-tab {
+            border-bottom: 3px solid #92400E;
+            color: #92400E;
+            font-weight: 600;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom scrollbar for tables */
+        .custom-scroll::-webkit-scrollbar {
+            height: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background-color: #D6D3D1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-2xl font-bold text-amber-800 tracking-wider">MỘC<span class="text-gray-600 text-sm ml-2 font-normal font-sans">Smart Fashion App</span></span>
+                </div>
+                <div class="hidden sm:flex space-x-8 items-center" id="nav-container">
+                    <!-- Nav items injected via JS -->
+                </div>
+                <!-- Mobile menu button placeholder (functional logic handled in larger scope if needed, kept simple for SPA) -->
+                <div class="flex items-center sm:hidden">
+                    <button id="mobile-menu-btn" class="text-gray-500 hover:text-amber-800 focus:outline-none">
+                        &#9776; <!-- Unicode Hamburger -->
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden sm:hidden bg-white border-t border-gray-100">
+             <!-- Mobile Nav items injected via JS -->
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main id="app-content" class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <!-- Views will be rendered here -->
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-stone-100 border-t border-stone-200 mt-12">
+        <div class="max-w-7xl mx-auto py-6 px-4 text-center">
+            <p class="text-stone-500 text-sm">© 2026 MỘC App Concept. Designed based on Requirement Specification "Nhập hàng bằng ĐT".</p>
+        </div>
+    </footer>
+
+    <!-- Visualization & Content Choices: 
+         1. Overview: Metric Cards -> Inform -> HTML/CSS -> Simple, immediate impact.
+         2. Import: Bar Chart -> Compare -> Chart.js -> Visualizing the gap between Import Price and Selling Price clearly.
+         3. Customer: Radar Chart -> Relationships -> Chart.js -> Perfect for comparing multi-dimensional data (3 rounds) vs Product specs.
+         4. Repair: Donut Chart -> Inform -> Chart.js -> Highlights the "100% to Tailor" unique selling point effectively.
+         
+         CONFIRMATION: NO SVG graphics used. NO Mermaid JS used.
+    -->
+
+    <script>
+        // --- DATA STORE ---
+        const appState = {
+            currentTab: 'overview',
+            inventory: [
+                { id: 'AD001', type: 'Áo Dài', era: '2024', color: 'Đỏ', size: 'M', importPrice: 250000, sellPrice: 850000, stock: 15 },
+                { id: 'AD002', type: 'Áo Bà Ba', era: 'Classic', color: 'Nâu', size: 'L', importPrice: 180000, sellPrice: 450000, stock: 8 },
+                { id: 'AD003', type: 'Áo Dài Cách Tân', era: '2025', color: 'Hồng', size: 'S', importPrice: 320000, sellPrice: 950000, stock: 20 },
+            ],
+            tailors: [
+                { id: 1, name: 'Cô Ba Sài Gòn', rating: 4.8, jobs: 120, skill: 'Áo dài lụa' },
+                { id: 2, name: 'Chú Tư Kỹ Tính', rating: 4.5, jobs: 85, skill: 'Sửa form' },
+                { id: 3, name: 'Tiệm May Hạnh', rating: 5.0, jobs: 42, skill: 'Thêu tay' },
+            ]
+        };
+
+        // --- NAVIGATION LOGIC ---
+        const tabs = [
+            { id: 'overview', label: 'Tổng Quan' },
+            { id: 'admin-import', label: 'Quản Trị Kho (AI)' },
+            { id: 'customer-view', label: 'Khách Hàng' },
+            { id: 'repair-hub', label: 'Dịch Vụ Sửa Đồ' }
+        ];
+
+        function renderNav() {
+            const container = document.getElementById('nav-container');
+            const mobileContainer = document.getElementById('mobile-menu');
+            
+            let html = '';
+            let mobileHtml = '';
+
+            tabs.forEach(tab => {
+                const activeClass = appState.currentTab === tab.id ? 'active-tab' : 'text-gray-500 hover:text-amber-800 transition duration-150';
+                const mobileActiveClass = appState.currentTab === tab.id ? 'bg-amber-50 text-amber-800' : 'text-gray-600';
+                
+                html += `<button onclick="switchTab('${tab.id}')" class="${activeClass} px-3 py-2 text-sm font-medium focus:outline-none">${tab.label}</button>`;
+                mobileHtml += `<button onclick="switchTab('${tab.id}')" class="${mobileActiveClass} block w-full text-left px-4 py-3 text-base font-medium border-b border-gray-100">${tab.label}</button>`;
+            });
+
+            container.innerHTML = html;
+            mobileContainer.innerHTML = mobileHtml;
+        }
+
+        function switchTab(tabId) {
+            appState.currentTab = tabId;
+            renderNav();
+            renderContent();
+            // Toggle mobile menu off if open
+            document.getElementById('mobile-menu').classList.add('hidden');
+        }
+
+        document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
+
+        // --- CONTENT RENDERING ---
+        function renderContent() {
+            const main = document.getElementById('app-content');
+            main.innerHTML = ''; // Clear current content
+            
+            // Remove old charts to prevent memory leaks
+            Chart.helpers.each(Chart.instances, function (instance) {
+                instance.destroy();
+            });
+
+            switch (appState.currentTab) {
+                case 'overview':
+                    renderOverview(main);
+                    break;
+                case 'admin-import':
+                    renderAdminImport(main);
+                    break;
+                case 'customer-view':
+                    renderCustomerView(main);
+                    break;
+                case 'repair-hub':
+                    renderRepairHub(main);
+                    break;
+            }
+        }
+
+        // --- VIEW: OVERVIEW ---
+        function renderOverview(container) {
+            container.innerHTML = `
+                <div class="fade-in space-y-10">
+                    <div class="text-center max-w-3xl mx-auto">
+                        <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Giải Pháp Thời Trang Số Hóa</h1>
+                        <p class="text-lg text-gray-600">
+                            Bản báo cáo đề xuất giao diện và chức năng cho ứng dụng quản lý kho thông minh và trải nghiệm khách hàng cá nhân hóa. 
+                            Hệ thống tích hợp AI nhận diện hình ảnh, hoạt động Offline, và mô hình kinh tế chia sẻ cho thợ may.
+                        </p>
+                    </div>
+
+                    <!-- KPI Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-lg shadow-sm border border-stone-200 hover:shadow-md transition">
+                            <div class="text-amber-700 text-4xl mb-2">&#9881;</div> <!-- Unicode Gear -->
+                            <h3 class="text-xl font-bold mb-2">Quản Trị Tự Động</h3>
+                            <p class="text-sm text-gray-500">Nhập hàng bằng Camera. Tự động phân loại màu sắc, kích thước và đề xuất giá bán dựa trên cấu hình biên độ lợi nhuận.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-sm border border-stone-200 hover:shadow-md transition">
+                            <div class="text-amber-700 text-4xl mb-2">&#128100;</div> <!-- Unicode User -->
+                            <h3 class="text-xl font-bold mb-2">Cá Nhân Hóa</h3>
+                            <p class="text-sm text-gray-500">Tìm kiếm dựa trên số đo 3 vòng. Hệ thống gợi ý sản phẩm tồn kho >4 tuần hoặc mẫu thiết kế mới nhất của năm.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-sm border border-stone-200 hover:shadow-md transition">
+                            <div class="text-amber-700 text-4xl mb-2">&#9986;</div> <!-- Unicode Scissors -->
+                            <h3 class="text-xl font-bold mb-2">Kết Nối Thợ Sửa</h3>
+                            <p class="text-sm text-gray-500">Khách hàng chọn thợ uy tín. Thợ nhận 100% phí sửa chữa. Nền tảng minh bạch và phi lợi nhuận cho dịch vụ phụ trợ.</p>
+                        </div>
+                    </div>
+
+                    <!-- Tech Spec Summary -->
+                    <div class="bg-stone-50 rounded-xl p-8 border border-stone-200">
+                        <h2 class="text-2xl font-bold mb-4">Yêu Cầu Kỹ Thuật Cốt Lõi</h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="flex items-start">
+                                <span class="text-green-600 mr-2">&#10004;</span>
+                                <div>
+                                    <strong>Offline-First Database:</strong>
+                                    <p class="text-xs text-gray-500">Cho phép hoạt động không cần internet, đồng bộ khi online.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="text-green-600 mr-2">&#10004;</span>
+                                <div>
+                                    <strong>Unit Testing:</strong>
+                                    <p class="text-xs text-gray-500">Kiểm thử đơn vị cho từng chức năng (Thêm, Xóa, Sửa, Tìm kiếm) trước khi release.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="text-green-600 mr-2">&#10004;</span>
+                                <div>
+                                    <strong>Responsive Design:</strong>
+                                    <p class="text-xs text-gray-500">Tối ưu Hierarchy và Negative Space cho trải nghiệm thị giác tốt nhất.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- VIEW: ADMIN IMPORT ---
+        function renderAdminImport(container) {
+            container.innerHTML = `
+                <div class="fade-in grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    
+                    <!-- Left Column: Input Simulation -->
+                    <div class="space-y-6">
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200">
+                            <h2 class="text-2xl font-bold mb-2">Nhập Kho Thông Minh</h2>
+                            <p class="text-sm text-gray-500 mb-6">Sử dụng Camera để phân tích tự động sản phẩm. Hệ thống sẽ nhận diện loại áo, màu sắc và đề xuất năm sản xuất.</p>
+                            
+                            <!-- Simulation Area -->
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50 transition" onclick="simulateScan()">
+                                <div class="text-4xl text-gray-300 mb-3">&#128247;</div>
+                                <h3 class="font-semibold text-gray-700">Chạm để giả lập Quét Camera</h3>
+                                <p class="text-xs text-gray-400 mt-2">AI sẽ phân tích hình ảnh...</p>
+                            </div>
+
+                            <!-- Result Form (Hidden initially) -->
+                            <div id="scan-results" class="hidden mt-6 space-y-4 bg-stone-50 p-4 rounded-lg">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-500 uppercase">Loại Áo</label>
+                                        <input type="text" id="res-type" class="w-full bg-white border border-gray-200 rounded p-2 text-sm font-semibold" readonly>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-500 uppercase">Màu Sắc</label>
+                                        <input type="text" id="res-color" class="w-full bg-white border border-gray-200 rounded p-2 text-sm" readonly>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-500 uppercase">Size</label>
+                                        <input type="text" id="res-size" class="w-full bg-white border border-gray-200 rounded p-2 text-sm" readonly>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-500 uppercase">Niên Đại</label>
+                                        <input type="text" id="res-era" class="w-full bg-white border border-gray-200 rounded p-2 text-sm" readonly>
+                                    </div>
+                                </div>
+                                <div class="pt-2 border-t border-gray-200">
+                                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Giá Nhập (VND)</label>
+                                     <input type="number" id="res-price-in" value="200000" class="w-full border border-gray-300 rounded p-2 text-sm focus:ring-amber-500 focus:border-amber-500">
+                                </div>
+                                <button onclick="addToInventory()" class="w-full bg-amber-800 hover:bg-amber-900 text-white font-bold py-3 rounded shadow-lg transition transform hover:-translate-y-0.5">
+                                    Lưu Vào Kho (Database Offline)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Visualization -->
+                    <div class="space-y-6">
+                         <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200">
+                            <h2 class="text-xl font-bold mb-4">Chiến Lược Định Giá</h2>
+                            <p class="text-sm text-gray-500 mb-4">Biểu đồ so sánh chênh lệch giữa giá nhập và giá bán dự kiến trên các dòng sản phẩm hiện có.</p>
+                            
+                            <!-- Chart Container -->
+                            <div class="chart-container">
+                                <canvas id="pricingChart"></canvas>
+                            </div>
+                        </div>
+
+                         <div class="bg-stone-100 p-4 rounded-lg border border-stone-200">
+                            <h4 class="font-bold text-sm mb-2 text-stone-700">Dữ Liệu Kho Hiện Tại:</h4>
+                            <div class="overflow-x-auto custom-scroll">
+                                <table class="min-w-full text-xs">
+                                    <thead>
+                                        <tr class="text-left text-gray-500 border-b border-gray-300">
+                                            <th class="pb-2">Mã</th>
+                                            <th class="pb-2">Loại</th>
+                                            <th class="pb-2 text-right">Tồn</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="inventory-table-body">
+                                        <!-- Populated by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            updateInventoryTable();
+            initPricingChart();
+        }
+
+        function simulateScan() {
+            const resultDiv = document.getElementById('scan-results');
+            const typeInput = document.getElementById('res-type');
+            const colorInput = document.getElementById('res-color');
+            const sizeInput = document.getElementById('res-size');
+            const eraInput = document.getElementById('res-era');
+
+            // Simulate AI processing time
+            document.body.style.cursor = 'wait';
+            setTimeout(() => {
+                document.body.style.cursor = 'default';
+                resultDiv.classList.remove('hidden');
+                resultDiv.classList.add('fade-in');
+                
+                // Randomly generate mock data
+                const types = ['Áo Dài Lụa', 'Áo Bà Ba', 'Áo Tứ Thân', 'Áo Dài Cách Tân'];
+                const colors = ['Xanh Ngọc', 'Vàng Mù Tạt', 'Tím Huế', 'Trắng Tinh Khôi'];
+                const sizes = ['S', 'M', 'L', 'XL'];
+                
+                typeInput.value = types[Math.floor(Math.random() * types.length)];
+                colorInput.value = colors[Math.floor(Math.random() * colors.length)];
+                sizeInput.value = sizes[Math.floor(Math.random() * sizes.length)];
+                eraInput.value = new Date().getFullYear().toString(); // "Lấy năm hiện tại" requirement
+
+            }, 800);
+        }
+
+        function addToInventory() {
+            const type = document.getElementById('res-type').value;
+            const priceIn = parseInt(document.getElementById('res-price-in').value);
+            
+            // Add to Mock Data
+            appState.inventory.push({
+                id: `AD${Math.floor(Math.random() * 900) + 100}`,
+                type: type,
+                era: '2026',
+                color: document.getElementById('res-color').value,
+                size: document.getElementById('res-size').value,
+                importPrice: priceIn,
+                sellPrice: priceIn * 2.5, // Mock logic for auto pricing
+                stock: 1
+            });
+
+            // Refresh UI
+            updateInventoryTable();
+            // Re-render chart to show new data
+            initPricingChart();
+            
+            alert("Đã lưu sản phẩm vào CSDL Offline!");
+            document.getElementById('scan-results').classList.add('hidden');
+        }
+
+        function updateInventoryTable() {
+            const tbody = document.getElementById('inventory-table-body');
+            tbody.innerHTML = appState.inventory.map(item => `
+                <tr class="border-b border-gray-100 last:border-0">
+                    <td class="py-2 text-gray-700 font-mono">${item.id}</td>
+                    <td class="py-2 text-gray-700">${item.type} (${item.color})</td>
+                    <td class="py-2 text-right font-bold">${item.stock}</td>
+                </tr>
+            `).join('');
+        }
+
+        function initPricingChart() {
+            const ctx = document.getElementById('pricingChart');
+            if(!ctx) return;
+
+            const labels = appState.inventory.map(i => i.type.split(' ').slice(0,2).join(' ')); // Shorten names
+            const importData = appState.inventory.map(i => i.importPrice);
+            const sellData = appState.inventory.map(i => i.sellPrice);
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [...new Set(labels)], // Unique labels roughly
+                    datasets: [
+                        {
+                            label: 'Giá Nhập',
+                            data: importData,
+                            backgroundColor: '#D6D3D1',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Giá Bán',
+                            data: sellData,
+                            backgroundColor: '#92400E',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(context.raw);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { display: false } // Hide numbers for cleaner UI in prototype
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- VIEW: CUSTOMER ENGINE ---
+        function renderCustomerView(container) {
+            container.innerHTML = `
+                <div class="fade-in">
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold mb-2">Trải Nghiệm Khách Hàng</h2>
+                        <p class="text-sm text-gray-500">Khách hàng quét mã QR để vào ứng dụng. Tại đây, hệ thống sử dụng thuật toán gợi ý dựa trên số đo cơ thể.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <!-- Input Form -->
+                        <div class="col-span-1 bg-white p-6 rounded-xl shadow-lg border border-amber-100">
+                            <h3 class="text-lg font-bold text-amber-900 mb-4">Nhập Số Đo (cm)</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-500 mb-1">Vòng 1 (Ngực)</label>
+                                    <input type="range" id="c-bust" min="70" max="120" value="85" class="w-full accent-amber-700" oninput="document.getElementById('val-bust').innerText = this.value">
+                                    <div class="text-right text-sm font-bold text-amber-800" id="val-bust">85</div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-500 mb-1">Vòng 2 (Eo)</label>
+                                    <input type="range" id="c-waist" min="50" max="100" value="65" class="w-full accent-amber-700" oninput="document.getElementById('val-waist').innerText = this.value">
+                                    <div class="text-right text-sm font-bold text-amber-800" id="val-waist">65</div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-500 mb-1">Vòng 3 (Mông)</label>
+                                    <input type="range" id="c-hip" min="75" max="130" value="90" class="w-full accent-amber-700" oninput="document.getElementById('val-hip').innerText = this.value">
+                                    <div class="text-right text-sm font-bold text-amber-800" id="val-hip">90</div>
+                                </div>
+                                <button onclick="runRecommendation()" class="w-full mt-4 bg-gray-800 text-white py-3 rounded font-bold hover:bg-gray-900 transition">
+                                    Tìm Sản Phẩm Phù Hợp
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Results & Viz -->
+                        <div class="col-span-1 md:col-span-2 space-y-6">
+                            <!-- Suggestion Cards -->
+                            <div id="recommendation-area" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded border-l-4 border-amber-600 shadow-sm">
+                                    <span class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded">Hàng Mới (>4 tuần)</span>
+                                    <h4 class="font-bold text-lg mt-2">Áo Dài Lụa Tơ Tằm</h4>
+                                    <p class="text-sm text-gray-500">Mã: AD-NEW-01</p>
+                                    <p class="text-sm mt-1">Độ phù hợp: <span class="font-bold text-green-600">98%</span></p>
+                                </div>
+                                <div class="bg-white p-4 rounded border-l-4 border-blue-600 shadow-sm">
+                                    <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded">Bộ Sưu Tập 2026</span>
+                                    <h4 class="font-bold text-lg mt-2">Áo Cách Tân Gấm</h4>
+                                    <p class="text-sm text-gray-500">Mã: AD-TREND-26</p>
+                                    <p class="text-sm mt-1">Độ phù hợp: <span class="font-bold text-green-600">92%</span></p>
+                                </div>
+                            </div>
+
+                            <!-- Fit Visualization -->
+                            <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200">
+                                <h3 class="text-lg font-bold mb-2 text-center">Biểu Đồ Độ Vừa Vặn (Fit Analysis)</h3>
+                                <div class="chart-container">
+                                    <canvas id="fitRadarChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Render empty chart initially
+            initFitChart([85, 65, 90], [86, 66, 92]);
+        }
+
+        let fitChartInstance = null;
+
+        function initFitChart(userMetrics, productMetrics) {
+            const ctx = document.getElementById('fitRadarChart');
+            if (!ctx) return;
+
+            if (fitChartInstance) fitChartInstance.destroy();
+
+            fitChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Vòng 1', 'Vai', 'Vòng 2', 'Bắp tay', 'Vòng 3'],
+                    datasets: [{
+                        label: 'Số đo của bạn',
+                        data: [userMetrics[0], userMetrics[0]*0.45, userMetrics[1], userMetrics[0]*0.3, userMetrics[2]], // Mock derived metrics
+                        fill: true,
+                        backgroundColor: 'rgba(146, 64, 14, 0.2)',
+                        borderColor: 'rgb(146, 64, 14)',
+                        pointBackgroundColor: 'rgb(146, 64, 14)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(146, 64, 14)'
+                    }, {
+                        label: 'Sản phẩm gợi ý (Size M)',
+                        data: [productMetrics[0], productMetrics[0]*0.45, productMetrics[1], productMetrics[0]*0.3, productMetrics[2]],
+                        fill: true,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgb(54, 162, 235)',
+                        pointBackgroundColor: 'rgb(54, 162, 235)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(54, 162, 235)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    elements: { line: { tension: 0.3 } },
+                    scales: {
+                        r: {
+                            angleLines: { display: true },
+                            suggestedMin: 50,
+                            suggestedMax: 120
+                        }
+                    }
+                }
+            });
+        }
+
+        function runRecommendation() {
+            const bust = parseInt(document.getElementById('c-bust').value);
+            const waist = parseInt(document.getElementById('c-waist').value);
+            const hip = parseInt(document.getElementById('c-hip').value);
+
+            // Show results
+            document.getElementById('recommendation-area').classList.remove('hidden');
+            document.getElementById('recommendation-area').classList.add('fade-in');
+
+            // Update Chart
+            // Generate a "Perfect Fit" slightly larger than user for comfort
+            const productFit = [bust + 2, waist + 2, hip + 3]; 
+            initFitChart([bust, waist, hip], productFit);
+        }
+
+        // --- VIEW: REPAIR HUB ---
+        function renderRepairHub(container) {
+            container.innerHTML = `
+                <div class="fade-in grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    
+                    <!-- Main Flow: Tailor List -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200">
+                            <h2 class="text-2xl font-bold mb-4">Mạng Lưới Thợ Sửa</h2>
+                            <p class="text-sm text-gray-500 mb-6">Khách hàng chủ động chọn thợ. Xem kỹ năng, đánh giá sao công khai.</p>
+                            
+                            <div class="space-y-4">
+                                ${appState.tailors.map(t => `
+                                    <div class="flex items-center justify-between p-4 border border-gray-100 rounded-lg hover:bg-stone-50 transition">
+                                        <div class="flex items-center space-x-4">
+                                            <div class="w-12 h-12 bg-stone-200 rounded-full flex items-center justify-center font-bold text-stone-600 text-lg">
+                                                ${t.name.charAt(0)}
+                                            </div>
+                                            <div>
+                                                <h4 class="font-bold text-gray-800">${t.name}</h4>
+                                                <div class="text-xs text-amber-600 flex items-center">
+                                                    ${'&#9733;'.repeat(Math.floor(t.rating))} (${t.rating}/5.0) &bull; ${t.jobs} đơn đã sửa
+                                                </div>
+                                                <p class="text-xs text-gray-400 mt-1">Chuyên: ${t.skill}</p>
+                                            </div>
+                                        </div>
+                                        <button class="px-4 py-2 bg-white border border-amber-800 text-amber-800 text-xs font-bold rounded hover:bg-amber-800 hover:text-white transition">
+                                            Đặt Lịch
+                                        </button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                         <!-- Process Timeline -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200">
+                            <h3 class="text-lg font-bold mb-4">Quy Trình Đơn Sửa Đồ</h3>
+                            <div class="relative pl-8 border-l-2 border-stone-200 space-y-6">
+                                <div class="relative">
+                                    <span class="absolute -left-[41px] bg-stone-100 border-2 border-stone-400 w-6 h-6 rounded-full"></span>
+                                    <h5 class="font-bold text-sm">1. Tạo Đơn & Chọn Thợ</h5>
+                                    <p class="text-xs text-gray-500">Khách mô tả lỗi, chọn thợ mong muốn.</p>
+                                </div>
+                                <div class="relative">
+                                    <span class="absolute -left-[41px] bg-stone-100 border-2 border-stone-400 w-6 h-6 rounded-full"></span>
+                                    <h5 class="font-bold text-sm">2. Báo Giá & Xác Nhận</h5>
+                                    <p class="text-xs text-gray-500">Thợ đưa giá và hẹn ngày. Khách xác nhận.</p>
+                                </div>
+                                <div class="relative">
+                                    <span class="absolute -left-[41px] bg-amber-100 border-2 border-amber-600 w-6 h-6 rounded-full flex items-center justify-center text-[10px] text-amber-800 font-bold animate-pulse">!</span>
+                                    <h5 class="font-bold text-sm text-amber-800">3. Sửa Chữa</h5>
+                                    <p class="text-xs text-amber-700">Trạng thái: Gấp / Hẹn lấy.</p>
+                                </div>
+                                <div class="relative">
+                                    <span class="absolute -left-[41px] bg-stone-100 border-2 border-stone-400 w-6 h-6 rounded-full"></span>
+                                    <h5 class="font-bold text-sm">4. Hoàn Tất & Thanh Toán</h5>
+                                    <p class="text-xs text-gray-500">Khách trả tiền trực tiếp hoặc qua App.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Col: Commission Model -->
+                    <div class="lg:col-span-1 space-y-6">
+                         <div class="bg-stone-800 text-white p-6 rounded-xl shadow-lg">
+                            <h3 class="text-lg font-bold mb-2">Mô Hình 0% Phí</h3>
+                            <p class="text-xs text-gray-300 mb-6">Hệ thống hoạt động phi lợi nhuận cho mảng sửa chữa để thu hút thợ giỏi.</p>
+                            
+                            <div class="chart-container" style="height: 200px;">
+                                <canvas id="commissionChart"></canvas>
+                            </div>
+                            
+                            <div class="mt-4 text-center">
+                                <span class="text-3xl font-bold text-amber-400">100%</span>
+                                <p class="text-sm">Doanh thu thuộc về Thợ</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            initCommissionChart();
+        }
+
+        function initCommissionChart() {
+            const ctx = document.getElementById('commissionChart');
+            if(!ctx) return;
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Thợ Sửa', 'Nền Tảng'],
+                    datasets: [{
+                        data: [100, 0],
+                        backgroundColor: ['#F59E0B', '#374151'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: 'white', font: { size: 10 } } },
+                        tooltip: { enabled: false }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderNav();
+            renderContent();
+        });
+
+    </script>
+</body>
+</html>

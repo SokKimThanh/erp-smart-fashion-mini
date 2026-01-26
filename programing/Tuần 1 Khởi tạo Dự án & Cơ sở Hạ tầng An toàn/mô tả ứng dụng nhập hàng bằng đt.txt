@@ -1,0 +1,1073 @@
+Hôm nay
+viết lại sao cho dễ hiểu:"tôi cần một ứng dụng chạy trên điện thoại cho phép nhập hàng bằng mã và chỉnh sửa thông tin sau. nhập hàng bằng mã là cho vào kho. trong đó khi nhập hàng bằng camera điện thoại thì cho tự động phân tích ảnh để phân loại tự động màu sắc, side mấy, mã nào. áo dài hay áo bà ba, kiểu áo dài nào thuộc năm bao nhiêu dựa vào ngày hiện tại để lấy. màn hình lựa đồ gồm tìm kiếm, tự động reccommand theo số đo các mẫu tồn kho trong năm nay hoặc đồ mới nhập kho sau ít nhất 4 tuần. lưu ý, ứng dụng này có csdl chạy offilne cho phép cài đặt trên các thiết bị. đáp ứng yêu cầu thẩm mỹ ressponsive, hierachy, negati ve space, và các nguyên lý thị giác khác nếu cần thiết. giao diện quản trị cũng tương tự nhưng cho phép thêm xóa sửa tìm kiếm và quan trọng là phải unittesst cho từng chức năng một trước khi release. có nghĩa là, khi sử dụng ứng dụng tôi sẽ dùng điện thoại để nhập hàng. tôi là admin. còn khách hàng cũng dùng điện thoại quét mã để tới được phần đăng ký khách hàng và bắt đầu sử dụng ứng dụng để coi được danh mục sản phẩm. tìm kiếm. ứng dụng đáp ứng nhu cầu của khách hàng về kích thước, mẫu mã, màu sắc. số đo 3 vòng. giá nhập hàng và giá bán ra là khác nhau hoàn toàn. khi nhập hàng sẽ tự động hóa việc nhập giá và mẫu mã do ảnh cung cấp. cho phép nhập giá hàng loạt sau khi tự động phân loại màu, hoặc kích thước hoặc dòng áo. sp hiện thị với khách hàng yêu cầu cần rõ ràng font chữ monterast đối với nội dung và font có chân đối với tiêu đề nhỏ. không chân kích thước to đối với điều đề lớn. các hình ảnh có slide nhỏ và slide lớn đối với ảnh to. tự động chỉnh lại kích thước ảnh phù hợp và lưu metadata của ảnh sp nào vào mã sp đấy đặt tên phù hợp. csdl mua hàng offline này cài đặt được trên các thiết bị nên chọn một cái phù hợp nhất phổ biến như pc, laptop, smartphone android, ios.  "
+Mình sẽ viết lại đoạn mô tả này ngắn gọn, dễ hiểu và có cấu trúc rõ ràng hơn để bạn dễ hình dung:
+
+Yêu cầu ứng dụng quản lý kho & bán hàng
+Chạy trên điện thoại (Android, iOS), có thể cài đặt offline trên nhiều thiết bị (PC, laptop, smartphone).
+
+Chức năng nhập hàng:
+
+Nhập bằng mã → đưa sản phẩm vào kho.
+
+Nhập bằng camera → tự động phân tích ảnh để nhận diện:
+
+Màu sắc, kích thước (size), mã sản phẩm.
+
+Loại áo (áo dài, áo bà ba).
+
+Kiểu áo dài thuộc năm nào (dựa vào ngày hiện tại).
+
+Tự động nhập giá và mẫu mã từ ảnh.
+
+Cho phép nhập giá hàng loạt theo màu, kích thước hoặc dòng sản phẩm.
+
+Màn hình lựa đồ cho khách hàng:
+
+Tìm kiếm sản phẩm.
+
+Gợi ý tự động (recommend) theo số đo, dựa trên mẫu tồn kho trong năm nay hoặc hàng mới nhập sau ít nhất 4 tuần.
+
+Hiển thị rõ ràng:
+
+Font chữ Montserrat cho nội dung.
+
+Font có chân cho tiêu đề nhỏ.
+
+Font không chân, kích thước lớn cho tiêu đề chính.
+
+Hình ảnh sản phẩm có slide nhỏ và slide lớn.
+
+Tự động chỉnh kích thước ảnh phù hợp, lưu metadata và gắn với mã sản phẩm.
+
+Giao diện quản trị (Admin):
+
+Thêm, xóa, sửa, tìm kiếm sản phẩm.
+
+Bắt buộc có unit test cho từng chức năng trước khi phát hành.
+
+Admin dùng điện thoại để nhập hàng.
+
+Khách hàng:
+
+Dùng điện thoại quét mã để đăng ký và bắt đầu sử dụng ứng dụng.
+
+Xem danh mục sản phẩm, tìm kiếm theo nhu cầu.
+
+Ứng dụng đáp ứng yêu cầu về kích thước, mẫu mã, màu sắc, số đo 3 vòng.
+
+Giá nhập và giá bán hoàn toàn khác nhau.
+
+Thiết kế giao diện:
+
+Đáp ứng các nguyên tắc thẩm mỹ: responsive, hierarchy, negative space, và các nguyên lý thị giác khác.Chức năng tìm kiếm bằng ảnh cho khách hàng
+Khách hàng có thể tải ảnh hoặc chụp ảnh mẫu áo dài / áo bà ba mà họ muốn tìm.
+
+Ứng dụng sẽ phân tích ảnh để nhận diện:
+
+Loại trang phục (áo dài, áo bà ba).
+
+Màu sắc, kiểu dáng, kích thước.
+
+Kết quả trả về:
+
+Nếu sản phẩm đã tồn tại trong kho → hiển thị chi tiết sản phẩm (mẫu mã, giá bán, số lượng còn lại).
+
+Nếu không tồn tại → ứng dụng sẽ giới thiệu các mẫu mới của cửa hàng có liên quan hoặc đang được khuyến nghị.
+
+Mục tiêu:
+
+Giúp khách hàng tìm nhanh sản phẩm họ muốn chỉ bằng ảnh.
+
+Tăng trải nghiệm mua sắm trực quan, tiện lợi.
+
+Đồng thời quảng bá các mẫu mới khi sản phẩm khách tìm chưa có.Chức năng thanh toán bằng QR Code
+Khi khách hàng chọn sản phẩm (ví dụ: áo dài, áo bà ba) và thêm vào giỏ hàng, ứng dụng sẽ hỗ trợ:
+
+Hiển thị tùy chọn thanh toán bằng QR Code.
+
+Tự động tạo mã QR chứa thông tin đơn hàng (sản phẩm, số lượng, giá bán, tổng tiền).
+
+Khách hàng dùng ứng dụng ngân hàng hoặc ví điện tử để quét mã QR và thanh toán.
+
+Quy trình:
+
+Khách chọn sản phẩm → thêm vào giỏ hàng.
+
+Vào giỏ hàng → chọn “Thanh toán bằng QR Code”.
+
+Ứng dụng sinh mã QR → khách quét bằng app ngân hàng/ ví điện tử.
+
+Sau khi thanh toán thành công → hệ thống xác nhận đơn hàng và cập nhật trạng thái.
+
+Mục tiêu:
+
+Đơn giản hóa quá trình thanh toán.
+
+Tăng tính tiện lợi, an toàn cho khách hàng.
+
+Giảm thao tác nhập thông tin thủ công.Chức năng sau thanh toán
+Cập nhật kho hàng:
+
+Sau khi khách hàng thanh toán thành công, hệ thống tự động trừ số lượng sản phẩm đã bán khỏi kho.
+
+Đảm bảo dữ liệu tồn kho luôn chính xác, tránh tình trạng bán vượt số lượng.
+
+Báo cáo doanh thu:
+
+Hệ thống tự động lập báo cáo chi tiết mua bán theo ngày, bao gồm:
+
+Số lượng sản phẩm bán ra.
+
+Doanh thu trong ngày (tổng tiền thu được).
+
+Danh sách sản phẩm bán chạy.
+
+Giá nhập và giá bán để tính lợi nhuận.
+
+Báo cáo có thể xuất ra dạng bảng hoặc biểu đồ để dễ theo dõi.
+
+Mục tiêu:
+
+Giúp quản trị viên nắm rõ tình hình kinh doanh hằng ngày.
+
+Tối ưu quản lý kho và theo dõi doanh thu/lợi nhuận.
+
+Hỗ trợ ra quyết định nhập thêm hàng hoặc điều chỉnh giá bán.Chức năng dành cho khách hàng có tài khoản
+Đăng ký & sử dụng tài khoản:
+
+Khách hàng cần đăng ký tài khoản để bắt đầu sử dụng ứng dụng.
+
+Tài khoản giúp lưu trữ thông tin cá nhân, lịch sử mua hàng và điểm tích lũy.
+
+Tích lũy điểm mua hàng:
+
+Mỗi lần khách mua sản phẩm, hệ thống tự động cộng điểm vào tài khoản.
+
+Điểm có thể dùng để đổi ưu đãi, giảm giá hoặc quà tặng.
+
+Quản trị viên có thể cấu hình quy tắc tích điểm (ví dụ: 1 điểm cho mỗi 100.000 VNĐ).
+
+Đánh giá cửa hàng:
+
+Sau khi mua hàng, ứng dụng gợi ý khách hàng đánh giá 5 sao trên Google Business Profile của cửa hàng.
+
+Tích hợp liên kết trực tiếp đến trang đánh giá trên Google Local Guide.
+
+Giúp tăng uy tín và độ hiển thị của cửa hàng trên Google Maps.Chức năng gửi email nhắc đánh giá sản phẩm
+Điều kiện kích hoạt:
+
+Khách hàng đã có tài khoản trong hệ thống.
+
+Khách hàng đã mua sản phẩm và đơn hàng được xác nhận thành công.
+
+Quy trình:
+
+Sau khi thanh toán và nhận hàng, hệ thống sẽ tự động gửi email nhắc nhở.
+
+Nội dung email gồm:
+
+Lời cảm ơn vì đã mua hàng.
+
+Đường dẫn trực tiếp để khách hàng đánh giá sản phẩm trên ứng dụng hoặc trên Google Business Profile.
+
+Gợi ý để khách hàng chấm điểm (ví dụ: 5 sao) và viết nhận xét.
+
+Email có thể được gửi sau một khoảng thời gian định sẵn (ví dụ: 3 ngày sau khi nhận hàng).
+
+Mục tiêu:
+
+Khuyến khích khách hàng phản hồi và đánh giá sản phẩm.
+
+Tăng uy tín cửa hàng thông qua các đánh giá tích cực.
+
+Thu thập dữ liệu về mức độ hài lòng để cải thiện chất lượng sản phẩm/dịch vụ.1. Giao diện đánh giá sản phẩm
+Nguyên tắc thiết kế:
+
+Responsive: hiển thị tốt trên mọi thiết bị (PC, laptop, smartphone, tablet).
+
+Thị giác: tuân thủ hierarchy (phân cấp thông tin), negative space (khoảng trắng hợp lý), font chữ rõ ràng.
+
+Trực quan: dễ thao tác, dễ đọc, dễ hiểu.
+
+Thành phần giao diện:
+
+Phần hiển thị sản phẩm: ảnh sản phẩm, tên, mã, giá bán.
+
+Phần đánh giá:
+
+Khách hàng chọn số sao (1–5).
+
+Viết nhận xét ngắn (tùy chọn).
+
+Hiển thị tổng điểm trung bình và số lượng đánh giá.
+
+Phần gợi ý sản phẩm:
+
+Dựa trên đánh giá và dữ liệu người dùng (ví dụ: kích thước, màu sắc, kiểu dáng).
+
+Đặc biệt hỗ trợ khách hàng có thân hình mập → gợi ý size lớn (5X–8X).
+
+2. Đối tượng khách hàng & sản phẩm
+Trẻ em (6–12 tuổi): áo dài trẻ em.
+
+Học sinh lớp 10: áo dài trắng.
+
+Trung niên: áo dài bà xui.
+
+Cô gái trẻ: áo dài cách tân, áo dài 2 tà/4 tà (giá tiền đồng nhất).
+
+Chất liệu gấm: nhiều loại (hoa mai, thọ, trúc đào từ size S đến 5X, nhập tới 8X).
+
+3. Quản lý dữ liệu sản phẩm & hình ảnh
+Size mặc định: có sẵn dữ liệu từ S đến 8X, cho phép chỉnh sửa khi nhập hàng.
+
+Quản lý hình ảnh:
+
+Lưu tập trung vào một nơi.
+
+Tự động chia folder theo danh mục sản phẩm.
+
+Quy tắc đặt tên file/thư mục:
+
+Không dấu, cách nhau bằng gạch ngang (ao-dai-trang, gam-hoa-mai).
+
+Slug chuẩn, dễ quản lý và tìm kiếm.
+
+Metadata ảnh gắn với mã sản phẩm để đồng bộ dữ liệu.
+
+4. Mục tiêu hệ thống
+Đảm bảo khách hàng dễ dàng đánh giá sản phẩm và nhận gợi ý phù hợp.
+
+Hỗ trợ khách hàng khó chọn size (như người mập) bằng gợi ý chính xác.
+
+Quản lý kho và hình ảnh sản phẩm tự động, khoa học, dễ tra cứu.
+
+Tăng trải nghiệm mua sắm và uy tín cửa hàng qua đánh giá minh bạch.Kiến trúc dự án java web, mysql, github
+Mô hình: 2 phần tách biệt — Frontend và Backend, giao tiếp qua REST API, mã nguồn quản lý trên GitHub (branching, PR, CI).
+
+Triển khai: Dev/Staging/Prod, cấu hình môi trường qua biến hệ thống, secrets tách riêng.
+
+Tài liệu: SRS để riêng trong repo docs, kèm Gantt, slide, kịch bản video.
+
+Công nghệ & tiêu chuẩn
+Backend:
+
+Framework: Spring Boot (Web, Security), Spring Data JPA/Hibernate, Validation.
+
+Tính năng chính: Nhập hàng bằng mã/camera, phân tích ảnh, phân loại sản phẩm, giỏ hàng, thanh toán QR, tích điểm, đánh giá, báo cáo ngày, quản trị CRUD, unit test.
+
+Bảo mật: JWT cho khách hàng/admin, RBAC, rate limit API nhạy cảm.
+
+Ảnh & metadata: Lưu file theo slug, metadata gắn mã SP; hỗ trợ lưu trên disk/NAS, có service đồng bộ.
+
+QR thanh toán: Tạo QR theo chuẩn nội bộ (payload đơn hàng), webhook xác nhận thanh toán.
+
+Phân tích ảnh: Service tách biệt (có thể dùng model đã huấn luyện hoặc tích hợp dịch vụ ML), trả về loại áo, màu, size, dòng gấm.
+
+Frontend:
+
+Tuỳ chọn 1 (Web thuần): Thymeleaf + Alpine.js  cho admin; khách hàng dùng SPA nhẹ.
+
+Tuỳ chọn 2 (SPA): React/Vue + Tailwind CSS; PWA để hỗ trợ offline cache cho trải nghiệm người dùng.
+
+UI/UX: Responsive, hierarchy rõ, negative space hợp lý; font Montserrat cho nội dung, serif cho tiêu đề nhỏ, sans-serif lớn cho tiêu đề chính; slide ảnh nhỏ/lớn.
+
+Database (MySQL):
+
+Bảng chính: products, product_images, inventory, orders, order_items, users, roles, points_ledger, reviews, categories, materials (gấm), sizes, price_book (giá nhập/bán), reports_daily.
+
+Nguyên tắc: Chuẩn hoá, ràng buộc FK, chỉ mục theo mã SP, slug, loại áo, size, màu; tách giá nhập/bán; log thay đổi.
+
+Chất lượng:
+
+Unit test: JUnit5 + Mockito cho từng chức năng trước release.
+
+CI: GitHub Actions chạy build, test, lint, kiểm tra coverage.
+
+Coding style: Checkstyle/Spotless, SonarLint (tuỳ chọn).
+
+Cấu trúc repository trên github
+root/
+
+backend/: Spring Boot (modules: api, core, image-ml, payment, reporting)
+
+frontend/: React/Vue app (PWA), Tailwind, router, store
+
+docs/: SRS, Gantt (PNG/PDF), slide (PDF/PPTX), video-script.md
+
+infra/: Dockerfile, docker-compose, Nginx config, env samples
+
+.github/: workflows (CI/CD), issue templates, PR templates
+
+scripts/: seed data, migration (Flyway), backup/restore
+
+README.md: hướng dẫn cài đặt, chạy, đóng góp
+
+Phân rã chức năng theo yêu cầu
+Nhập hàng:
+
+Mã & camera: nhập vào kho; camera kích hoạt phân tích ảnh tự động (màu, size, mã, loại áo, năm kiểu).
+
+Giá & mẫu mã: tự động điền từ ảnh; nhập giá hàng loạt theo màu/size/dòng áo.
+
+Size: mặc định S–8X, cho phép sửa; gấm: hoa mai, thọ, trúc đào S–5X (nhập tới 8X).
+
+Khách hàng:
+
+Đăng ký tài khoản: lưu lịch sử, số đo 3 vòng, tích điểm.
+
+Tìm kiếm bằng ảnh: nhận diện áo dài/áo bà ba; trả về kết quả tồn tại; nếu không có—giới thiệu mẫu mới liên quan.
+
+Lựa đồ: tìm kiếm, recommend theo số đo; ưu tiên mẫu tồn kho năm nay hoặc hàng mới nhập sau ≥4 tuần.
+
+Giỏ hàng & thanh toán: QR code; xác nhận thanh toán → cập nhật kho, tạo báo cáo ngày.
+
+Đánh giá: giao diện 5 sao, nhận xét; gợi ý sản phẩm phù hợp (đặc biệt cho người mập).
+
+Email nhắc đánh giá: gửi sau thời gian định sẵn, link đánh giá sản phẩm và Google Business Profile.
+
+Quản trị:
+
+CRUD: thêm/xoá/sửa/tìm kiếm; quản lý giá nhập/bán; quản lý ảnh, folder theo danh mục; slug không dấu, gạch ngang.
+
+Báo cáo: mua bán/doanh thu theo ngày; sản phẩm bán chạy; lợi nhuận (giá nhập vs giá bán).
+
+Kiểm thử: unit test bắt buộc cho từng chức năng trước release.
+
+Srs (software requirements specification) — đề cương
+1. Giới thiệu: phạm vi, mục tiêu, đối tượng sử dụng (admin, khách).
+
+2. Tổng quan hệ thống: kiến trúc 2 phần, luồng dữ liệu, ràng buộc offline/online.
+
+3. Yêu cầu chức năng: nhập hàng, phân tích ảnh, tìm kiếm ảnh, giỏ hàng, QR, tích điểm, đánh giá, email, báo cáo, quản trị.
+
+4. Yêu cầu phi chức năng: hiệu năng, bảo mật, tính sẵn sàng, responsive, UX, đặt tên file/slug, quản lý ảnh.
+
+5. Dữ liệu & mô hình: ERD, schema MySQL, chỉ mục, migration.
+
+6. Tích hợp: QR thanh toán, email, Google Business Profile (liên kết đánh giá).
+
+7. Kiểm thử: chiến lược unit/integration, tiêu chí chấp nhận, coverage.
+
+8. Triển khai & vận hành: môi trường, CI/CD, backup, logging, monitoring.
+
+9. Rủi ro & giảm thiểu: phân tích ảnh sai, đồng bộ kho, bảo mật thanh toán, hiệu năng tìm kiếm.
+
+Kế hoạch thực hiện (gantt) — mốc & ước lượng
+Tuần 1–2: Khởi động & nền tảng
+
+Thiết lập repo & CI/CD: cấu trúc, workflow.
+
+Thiết kế DB & ERD: bảng, chỉ mục, migration.
+
+SRS v1: hoàn thiện bản nháp, review.
+
+Tuần 3–4: Backend core
+
+Auth & RBAC: JWT, vai trò admin/khách.
+
+Products/Inventory API: CRUD, nhập hàng bằng mã.
+
+Image storage & slug: quy tắc tên, metadata.
+
+Tuần 5–6: Phân tích ảnh & tìm kiếm bằng ảnh
+
+Service nhận diện: loại áo, màu, size, dòng gấm.
+
+Tìm kiếm ảnh: đối sánh, fallback gợi ý mẫu mới.
+
+Unit test: coverage ≥70%.
+
+Tuần 7–8: Giỏ hàng & QR thanh toán
+
+Cart/Order API: tính tổng, giá bán vs giá nhập.
+
+QR & webhook: tạo QR, xác nhận thanh toán.
+
+Cập nhật kho & báo cáo ngày: tự động.
+
+Tuần 9–10: Tích điểm, đánh giá, email
+
+Points ledger: quy tắc tích điểm.
+
+Reviews UI/API: 5 sao, nhận xét, recommend theo số đo.
+
+Email nhắc đánh giá: lịch gửi, template.
+
+Tuần 11–12: Frontend & UX
+
+Responsive UI: Montserrat/serif, slide ảnh, hierarchy.
+
+PWA (tuỳ chọn): cache cho trải nghiệm offline.
+
+Tối ưu tìm kiếm & gợi ý size lớn (5X–8X).
+
+Tuần 13: Kiểm thử & hardening
+
+Unit/Integration/E2E: sửa lỗi, bảo mật.
+
+Tài liệu: cập nhật SRS v2, hướng dẫn.
+
+Tuần 14: Trình bày & phát hành
+
+Slide thuyết trình: demo luồng chính.
+
+Kịch bản video: quay tính năng end-to-end.
+
+Tag release v1.0: changelog, binaries.
+
+Slide thuyết trình dự án — đề cương
+Slide 1: Tổng quan dự án & mục tiêu.
+
+Slide 2: Đối tượng khách hàng & danh mục sản phẩm (trẻ em, học sinh, trung niên, cô gái trẻ; gấm hoa mai/thọ/trúc đào; size S–8X).
+
+Slide 3: Kiến trúc 2 phần, công nghệ (Spring Boot, MySQL, React/Vue, CI/CD).
+
+Slide 4: Luồng nhập hàng (mã/camera, phân tích ảnh, slug, metadata).
+
+Slide 5: Tìm kiếm bằng ảnh & gợi ý sản phẩm (đặc biệt cho người mập).
+
+Slide 6: Giỏ hàng & thanh toán QR, webhook, cập nhật kho.
+
+Slide 7: Báo cáo doanh thu ngày, sản phẩm bán chạy, lợi nhuận.
+
+Slide 8: Tích điểm, đánh giá 5 sao, email nhắc đánh giá.
+
+Slide 9: UI/UX: responsive, font, slide ảnh, hierarchy, negative space.
+
+Slide 10: Kiểm thử & chất lượng (unit test, coverage, CI).
+
+Slide 11: Kế hoạch Gantt & mốc phát hành.
+
+Slide 12: Demo & bước tiếp theo.
+
+Kịch bản video demo — chi tiết cảnh quay
+Cảnh 1 (Intro): Giới thiệu mục tiêu, đối tượng khách hàng, danh mục sản phẩm.
+
+Cảnh 2 (Admin nhập hàng): Quét mã/camera → hệ thống phân tích ảnh → tự động điền màu/size/loại áo/năm kiểu → đặt tên file/slug → lưu metadata.
+
+Cảnh 3 (Khách tìm bằng ảnh): Tải/chụp ảnh → nhận diện → trả kết quả tồn tại; nếu không có, hiển thị mẫu mới liên quan.
+
+Cảnh 4 (Lựa đồ & recommend): Tìm kiếm, gợi ý theo số đo (nhấn mạnh size lớn 5X–8X).
+
+Cảnh 5 (Giỏ hàng & QR): Thêm sản phẩm → tạo QR → quét thanh toán → webhook xác nhận.
+
+Cảnh 6 (Sau thanh toán): Tự động trừ kho → báo cáo doanh thu ngày → xem biểu đồ/bảng.
+
+Cảnh 7 (Tài khoản & tích điểm): Đăng ký → mua hàng → cộng điểm → email nhắc đánh giá → liên kết Google Business Profile.
+
+Cảnh 8 (Kết thúc): Tóm tắt lợi ích, roadmap v2 (nâng cấp ML, phân tích xu hướng).
+
+Rủi ro & phương án giảm thiểu
+Phân tích ảnh sai:
+
+Giảm thiểu: cho phép admin duyệt/chỉnh; huấn luyện model theo dữ liệu cửa hàng; log độ tin cậy.
+
+Đồng bộ kho sau thanh toán:
+
+Giảm thiểu: giao dịch ACID, idempotent webhook, hàng đợi retry.
+
+Hiệu năng tìm kiếm:
+
+Giảm thiểu: chỉ mục DB, cache kết quả, phân trang.
+
+Bảo mật QR & dữ liệu:
+
+Giảm thiểu: ký payload, HTTPS, JWT, kiểm soát quyền.Nguyên tắc nhập sản phẩm trong ứng dụng
+Ưu tiên thao tác thủ công:
+
+Người quản trị (admin) nhập sản phẩm trực tiếp bằng tay qua form: mã sản phẩm, tên, loại áo, chất liệu, màu sắc, size, giá nhập, giá bán.
+
+Cho phép chỉnh sửa thông tin sau khi nhập.
+
+Đây là chức năng bắt buộc, đảm bảo hệ thống hoạt động ổn định ngay cả khi không có AI.
+
+Chức năng tự động phân tích hình ảnh (tùy chọn):
+
+Nếu có, đây sẽ là điểm cộng lớn cho trải nghiệm người dùng.
+
+Camera điện thoại chụp ảnh sản phẩm → hệ thống phân tích để gợi ý: màu sắc, size, loại áo, chất liệu.
+
+Admin vẫn có quyền chỉnh sửa kết quả phân tích để đảm bảo chính xác.
+
+Nếu không có tính năng này, hệ thống vẫn vận hành đầy đủ nhờ nhập thủ công.
+
+Mục tiêu:
+
+Đảm bảo tính khả dụng: luôn nhập được sản phẩm bằng tay.
+
+Tính năng AI phân tích ảnh chỉ là bổ sung nâng cao, giúp tiết kiệm thời gian và tăng tiện lợi.
+
+Tránh phụ thuộc hoàn toàn vào AI để không ảnh hưởng đến quy trình nhập hàng.1. Nguyên tắc MVC
+Model: Quản lý dữ liệu, logic nghiệp vụ, kết nối database (MySQL).
+
+View: Giao diện người dùng (frontend web/app).
+
+Controller: Xử lý yêu cầu từ người dùng, gọi Model và trả về View.
+
+2. Cấu trúc thư mục dự án (Java Web + MySQL)
+Mã
+project-root/
+│
+├── backend/                     # Phần xử lý logic và API
+│   ├── src/main/java/com/app/
+│   │   ├── controller/          # Controller: xử lý request
+│   │   │   ├── ProductController.java
+│   │   │   ├── UserController.java
+│   │   │   ├── OrderController.java
+│   │   │   └── ReviewController.java
+│   │   │
+│   │   ├── model/               # Model: entity, DTO
+│   │   │   ├── Product.java
+│   │   │   ├── User.java
+│   │   │   ├── Order.java
+│   │   │   └── Review.java
+│   │   │
+│   │   ├── repository/          # Repository: giao tiếp MySQL
+│   │   │   ├── ProductRepository.java
+│   │   │   ├── UserRepository.java
+│   │   │   └── OrderRepository.java
+│   │   │
+│   │   ├── service/             # Service: nghiệp vụ
+│   │   │   ├── ProductService.java
+│   │   │   ├── UserService.java
+│   │   │   └── OrderService.java
+│   │   │
+│   │   └── config/              # Cấu hình (DB, bảo mật, API)
+│   │       ├── DatabaseConfig.java
+│   │       └── SecurityConfig.java
+│   │
+│   └── src/main/resources/
+│       ├── application.properties   # Config MySQL, server
+│       └── schema.sql               # Script DB
+│
+├── frontend/                   # Phần giao diện (React/Vue hoặc JSP/Thymeleaf)
+│   ├── public/                 # Static assets (ảnh, CSS, JS)
+│   ├── src/
+│   │   ├── components/          # Component UI
+│   │   │   ├── ProductCard.jsx
+│   │   │   ├── Cart.jsx
+│   │   │   └── ReviewForm.jsx
+│   │   ├── pages/               # Các trang chính
+│   │   │   ├── HomePage.jsx
+│   │   │   ├── ProductPage.jsx
+│   │   │   └── AdminPage.jsx
+│   │   └── services/            # Gọi API từ backend
+│   │       ├── productApi.js
+│   │       ├── userApi.js
+│   │       └── orderApi.js
+│
+├── docs/                       # Tài liệu dự án
+│   ├── SRS.md                   # Software Requirement Specification
+│   ├── gantt-chart.png           # Biểu đồ Gantt
+│   ├── slides.pptx               # Slide thuyết trình
+│   └── video-script.md           # Kịch bản quay video demo
+│
+├── tests/                      # Unit test & Integration test
+│   ├── ProductServiceTest.java
+│   ├── UserServiceTest.java
+│   └── OrderControllerTest.java
+│
+├── .github/                    # CI/CD workflows
+│   └── workflows/
+│       └── build-test.yml
+│
+└── README.md                   # Hướng dẫn cài đặt & chạy
+3. Quy tắc đặt tên file/thư mục
+Không dấu, cách nhau bằng gạch ngang hoặc camelCase.
+
+Tên rõ nghĩa: ProductController.java thay vì PC.java.
+
+Slug cho ảnh/tài liệu: ao-dai-trang-s-size.jpg.
+
+Folder theo danh mục: images/products/ao-dai/, images/products/gam/.
+
+4. Lợi ích
+Rõ ràng: dễ tìm kiếm, dễ bảo trì.
+
+Tách biệt: frontend và backend độc lập, dễ mở rộng.
+
+Chuẩn hóa: theo nguyên tắc MVC, dễ onboarding cho dev mới.
+
+Quản lý tốt: tài liệu, mã nguồn, CI/CD đều có chỗ riêng.1. Nguyên tắc kiểm thử dữ liệu (Unit Test trong Java)
+Kiểm tra lưu dữ liệu vào DB (MySQL):
+
+Test khi thêm mới sản phẩm → dữ liệu phải được ghi đúng vào bảng products.
+
+Test khi cập nhật sản phẩm → trường dữ liệu phải thay đổi đúng kiểu (ví dụ: price là số, name là chuỗi).
+
+Test khi xóa sản phẩm → dữ liệu không còn tồn tại trong DB.
+
+Kiểm tra kiểu dữ liệu & ràng buộc:
+
+Giá nhập / giá bán: phải là số dương, không âm, không null.
+
+Tên sản phẩm: phải có số lượng ký tự tối thiểu (ví dụ ≥ 3 ký tự), không chứa ký tự đặc biệt không hợp lệ.
+
+Slug / mã sản phẩm: không dấu, cách nhau bằng gạch ngang, duy nhất trong DB.
+
+Size: chỉ nhận các giá trị hợp lệ (S → 8X).
+
+2. Kiểm thử ngữ cảnh kinh doanh
+Danh mục sản phẩm:
+
+Áo dài (trẻ em, học sinh, trung niên, cô gái trẻ).
+
+Áo bà ba.
+
+Thời trang dịp lễ (Trung thu, Noel, 20-10, Valentine 14-2, Quốc tế phụ nữ, Ngày Nhà giáo VN).
+
+Kiểm thử dữ liệu nhập:
+
+Đảm bảo tên sản phẩm phản ánh đúng ý nghĩa (ví dụ: “Áo dài trắng học sinh lớp 10”).
+
+Không cho phép tên sản phẩm chứa từ ngữ tục tĩu, hận thù, vi phạm tôn giáo/chính trị/quốc gia.
+
+3. Kiểm soát ngôn từ (Validation)
+Unit test cho validation:
+
+Test khi nhập tên sản phẩm có từ ngữ tục tĩu → hệ thống phải từ chối.
+
+Test khi nhập mô tả sản phẩm chứa nội dung hận thù hoặc vi phạm chính trị/tôn giáo → hệ thống phải từ chối.
+
+Test khi nhập tên sản phẩm hợp lệ (ví dụ: “Áo dài gấm hoa mai size L”) → hệ thống chấp nhận.
+
+4. Ví dụ Unit Test (JUnit + Spring Boot)
+java
+@SpringBootTest
+public class ProductRepositoryTest {
+
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Test
+    public void testSaveValidProduct() {
+        Product p = new Product("ao-dai-trang", "Áo dài trắng học sinh", 250000, "M");
+        Product saved = productRepository.save(p);
+        assertNotNull(saved.getId());
+        assertEquals("Áo dài trắng học sinh", saved.getName());
+    }
+
+    @Test
+    public void testRejectNegativePrice() {
+        Product p = new Product("ao-ba-ba", "Áo bà ba", -100000, "L");
+        assertThrows(DataIntegrityViolationException.class, () -> {
+            productRepository.save(p);
+        });
+    }
+
+    @Test
+    public void testRejectInvalidName() {
+        Product p = new Product("ao-dai-xau", "Đ** áo dài", 200000, "S");
+        assertThrows(ValidationException.class, () -> {
+            productRepository.save(p);
+        });
+    }
+}
+5. Mục tiêu
+Đảm bảo dữ liệu trong DB luôn hợp lệ.
+
+Ngăn chặn nội dung không phù hợp (tục tĩu, hận thù, vi phạm chính trị/tôn giáo).
+
+Giữ cho hệ thống quản lý bán hàng sạch sẽ, minh bạch, đáng tin cậy.Yêu cầu bảo mật cao cho ứng dụng
+Khóa mật khẩu riêng cấp cao nhất (Master Key):
+
+Hệ thống cho phép thiết lập một master key dành cho quản trị viên cấp cao nhất.
+
+Master key dùng để:
+
+Truy cập toàn bộ dữ liệu và chức năng quản trị.
+
+Khôi phục hệ thống trong trường hợp khẩn cấp.
+
+Mã hóa/giải mã dữ liệu nhạy cảm (ví dụ: thông tin khách hàng, báo cáo doanh thu).
+
+Master key phải được lưu trữ an toàn (ví dụ: trong file cấu hình mã hóa hoặc phần cứng bảo mật).
+
+Chế độ Offline:
+
+Ứng dụng có khả năng chạy offline mà vẫn đảm bảo bảo mật.
+
+Dữ liệu được lưu trong database MySQL cục bộ trên thiết bị.
+
+Các thao tác nhập hàng, quản lý kho, báo cáo vẫn hoạt động bình thường khi không có internet.
+
+Khi có kết nối lại, hệ thống có thể đồng bộ dữ liệu lên server (nếu cần).
+
+Nguyên tắc bảo mật bổ sung:
+
+Mã hóa dữ liệu: thông tin nhạy cảm (mật khẩu, master key, dữ liệu khách hàng) phải được mã hóa.
+
+Xác thực nhiều lớp: ngoài mật khẩu, có thể thêm xác thực OTP hoặc token cho admin.
+
+Kiểm soát truy cập: phân quyền rõ ràng (admin, nhân viên, khách hàng).
+
+Ngăn chặn tấn công: chống SQL Injection, XSS, CSRF.
+
+Kiểm thử bảo mật: unit test và penetration test cho các chức năng quan trọng.
+
+Mục tiêu
+Đảm bảo hệ thống an toàn tuyệt đối ngay cả khi chạy offline.
+
+Cho phép quản trị viên có quyền kiểm soát cao nhất bằng master key.
+
+Bảo vệ dữ liệu khách hàng và doanh thu khỏi rò rỉ hoặc truy cập trái phép.
+1. Đa ngôn ngữ (English – Tiếng Việt)
+Khách hàng & Admin đều có thể chọn ngôn ngữ hiển thị.
+
+Cài đặt theo tài khoản: mỗi người dùng khi đăng ký sẽ có tùy chọn ngôn ngữ mặc định.
+
+Hệ thống i18n (internationalization):
+
+Toàn bộ text trong ứng dụng được tách riêng thành file ngôn ngữ (vi.json, en.json).
+
+Khi người dùng đổi ngôn ngữ, giao diện sẽ tự động tải text từ file tương ứng.
+
+Ví dụ:
+
+Áo dài trắng học sinh → White Ao Dai for Students.
+
+Giỏ hàng → Shopping Cart.
+
+2. Chế độ màu (Light/Dark Mode)
+Tùy chỉnh theo tài khoản:
+
+Người dùng chọn chế độ sáng (light) hoặc tối (dark) trong phần cài đặt.
+
+Lựa chọn này được lưu trong database và áp dụng mỗi lần đăng nhập.
+
+Responsive & UX:
+
+Font chữ, màu nền, màu chữ phải đảm bảo dễ đọc ở cả hai chế độ.
+
+Admin giao diện cũng có chế độ sáng/tối tương tự để đồng bộ trải nghiệm.
+
+3. Giao diện Admin
+Tương tự khách hàng:
+
+Admin có thể chọn ngôn ngữ (EN/VN).
+
+Admin có thể chọn chế độ sáng/tối.
+
+Khác biệt:
+
+Admin có thêm menu quản trị (CRUD sản phẩm, báo cáo, quản lý người dùng).
+
+Vẫn tuân thủ nguyên tắc responsive, hierarchy, negative space.
+
+4. Mục tiêu
+Thân thiện với người Việt Nam nhưng vẫn mở rộng cho người dùng quốc tế (English).
+
+Cá nhân hóa trải nghiệm: mỗi tài khoản có thể lưu cài đặt riêng về ngôn ngữ và giao diện.
+
+Đồng bộ: cả khách hàng và admin đều có trải nghiệm nhất quán.Trải nghiệm khách hàng lần đầu
+Chế độ màu mặc định:
+
+Khi khách hàng lần đầu mở ứng dụng, giao diện sẽ hiển thị ở chế độ sáng (Light Mode).
+
+Sau khi đăng ký tài khoản, họ có thể tùy chỉnh sang chế độ tối (Dark Mode) nếu muốn.
+
+Mua hàng không cần tài khoản:
+
+Khách hàng mới có thể mua hàng ngay mà không cần đăng ký tài khoản.
+
+Tuy nhiên, hệ thống bắt buộc yêu cầu nhập email trước khi hoàn tất đơn hàng.
+
+Email này được dùng cho:
+
+Xác nhận đơn hàng.
+
+Tiếp thị kỹ thuật số (digital marketing): gửi khuyến mãi, sản phẩm mới, nhắc đánh giá.
+
+Quy trình:
+
+Khách chọn sản phẩm → thêm vào giỏ hàng.
+
+Khi thanh toán, hệ thống yêu cầu nhập email.
+
+Hoàn tất thanh toán bằng QR code hoặc phương thức khác.
+
+Email được lưu vào hệ thống để phục vụ marketing sau này.
+
+Mục tiêu
+Thân thiện với khách hàng mới: không ép buộc đăng ký ngay.
+
+Thu thập dữ liệu marketing: vẫn đảm bảo có email để tiếp cận khách hàng sau này.
+
+Cá nhân hóa trải nghiệm: khi khách đăng ký tài khoản, họ có thể tùy chỉnh ngôn ngữ và chế độ màu.1. Quản lý phễu tiếp thị (Marketing Funnel)
+Các giai đoạn chính:
+
+Nhận biết (Awareness): khách hàng lần đầu tiếp cận ứng dụng, xem sản phẩm.
+
+Quan tâm (Interest): khách thêm sản phẩm vào giỏ hàng.
+
+Cân nhắc (Consideration): khách bắt đầu thao tác thanh toán nhưng chưa hoàn tất.
+
+Mua hàng (Purchase): khách hoàn tất thanh toán.
+
+Trung thành (Loyalty): khách quay lại, tích điểm, đánh giá sản phẩm.
+
+Theo dõi trạng thái khách hàng:
+
+Hệ thống ghi nhận mỗi hành động (xem sản phẩm, thêm giỏ hàng, thanh toán, đánh giá).
+
+Phân loại khách hàng theo giai đoạn trong phễu để có chiến lược tiếp thị phù hợp.
+
+2. Hành trình khách hàng (Customer Journey)
+Khách đã hoàn thành mua hàng:
+
+Nhận email xác nhận đơn hàng.
+
+Nhận email nhắc đánh giá sản phẩm.
+
+Được cộng điểm tích lũy và gợi ý sản phẩm liên quan.
+
+Khách bỏ dở (giỏ hàng chưa thanh toán):
+
+Hệ thống gửi email nhắc nhở hoặc thông báo push (nếu có app).
+
+Nội dung nhắc: “Bạn còn sản phẩm trong giỏ hàng, hãy hoàn tất thanh toán để nhận ưu đãi.”
+
+Có thể kèm khuyến mãi nhỏ để khuyến khích hoàn tất đơn hàng.
+
+3. Tính năng kỹ thuật
+Theo dõi giỏ hàng:
+
+Mỗi giỏ hàng được gắn với email hoặc tài khoản khách hàng.
+
+Nếu giỏ hàng chưa thanh toán sau X giờ/ngày → kích hoạt nhắc nhở.
+
+Tích hợp tiếp thị kỹ thuật số:
+
+Email marketing (Mailchimp, SendGrid, hoặc module nội bộ).
+
+Push notification (nếu khách dùng app).
+
+Báo cáo tỷ lệ chuyển đổi: bao nhiêu khách bỏ giỏ → bao nhiêu khách quay lại mua.
+
+4. Mục tiêu
+Tăng tỷ lệ chuyển đổi: giảm số lượng giỏ hàng bị bỏ dở.
+
+Giữ chân khách hàng: nhắc nhở và khuyến khích quay lại mua.
+
+Tối ưu doanh thuDựa trên những phân tích về hành trình khách hàng mà Thanh đã nêu, giai đoạn từ lúc khách "tới tiệm" đến khi "đi vào tiệm" chính là "điểm chạm vàng" để tạo ấn tượng đầu tiên. Với một ứng dụng chuyên biệt cho Áo dài và Áo bà ba, Thanh có thể cụ thể hóa thành các chức năng kỹ thuật sau để bổ sung vào SRS:
+
+### 1. Giai đoạn Tiếp cận & Chào đón (Entry & Recognition)
+
+* **Smart QR Check-in & Profile Link:** * Khách quét mã QR đặt tại cửa (hoặc quầy tiếp tân). Nếu là khách cũ, ứng dụng tự động hiển thị lời chào cá nhân hóa trên điện thoại của họ: "Chào mừng bạn trở lại với Áo dài Bà Tuyết!".
+* Hệ thống ngay lập tức đẩy thông báo (Push Notification) đến máy tính/máy tính bảng của nhân viên: "Khách hàng [Tên] vừa vào tiệm, số đo 3 vòng: X-Y-Z, sở thích: Áo dài lụa". Điều này giúp nhân viên tư vấn cực kỳ chính xác mà không cần hỏi lại.
+
+
+* **Geofencing Marketing:**
+* Sử dụng định vị khi khách ở trong bán kính 50-100m quanh tiệm, ứng dụng gửi một thông báo đẩy về các mẫu áo dài mới nhất hoặc chương trình giảm giá đặc biệt trong ngày để thúc đẩy họ bước vào trong.
+
+
+
+### 2. Giai đoạn Trải nghiệm tại chỗ (In-store Digital Experience)
+
+* **Tra cứu bằng AI Camera (Visual Search):**
+* Khách có thể dùng camera điện thoại quét bất kỳ mẫu áo nào đang trưng bày. Ứng dụng sẽ nhận diện màu sắc, kiểu dáng và trả về kết quả: "Mẫu này còn size của bạn không?", "Có những màu nào khác?", "Giá bán là bao nhiêu?".
+
+
+* **Gợi ý theo Số đo thực tế (AI Recommendation):**
+* Dựa vào số đo 3 vòng đã lưu hoặc nhập mới, ứng dụng sẽ lọc nhanh danh mục "Sản phẩm dành riêng cho bạn". Thanh có thể tích hợp thuật toán phân loại đồ tồn kho (như đã nêu trong SRS) để ưu tiên đẩy các mẫu phù hợp nhất với vóc dáng của khách (đặc biệt là các size lớn 5X-8X).
+
+
+* **Giỏ hàng O2O (Online-to-Offline):**
+* Khách thử đồ nhưng chưa quyết định mua ngay. Họ có thể quét mã sản phẩm để lưu vào "Danh sách yêu thích" hoặc "Giỏ hàng chờ". Sau khi về nhà, hệ thống tự động gửi tin nhắn nhắc nhở hoặc tặng thêm mã giảm giá ngắn hạn để họ chốt đơn online.
+
+
+
+### 3. Giai đoạn Sau mua hàng & Gắn kết (Loyalty & Review)
+
+* **Hệ thống Review tự động (Automated Feedback Loop):**
+* Sau khi trạng thái đơn hàng chuyển thành "Hoàn thành" khoảng 1-2 ngày (thời gian khách đã mặc thử và cảm thấy hài lòng), ứng dụng tự động gửi thông báo kèm link dẫn trực tiếp đến phần đánh giá 5 sao trên Google Business Profile.
+* Thanh có thể thiết kế cơ chế: "Đánh giá 5 sao kèm hình ảnh để nhận ngay 50 điểm thưởng tích lũy".
+
+
+* **Quản lý dịp lễ cá nhân:**
+* Hệ thống tự động nhắc nhở khách về các dịp lễ sắp tới (Cưới hỏi, lễ hội, Tết) dựa trên lịch sử mua hàng năm trước để gợi ý họ đến may hoặc thuê bộ mới.
+
+
+
+### Gợi ý về sơ đồ hành trình (Customer Journey Map)
+
+Thanh hoàn toàn nên vẽ sơ đồ này. Nó sẽ giúp Thanh nhìn ra những "nút thắt" trong trải nghiệm người dùng mà chỉ đọc văn bản SRS khó thấy được. Ví dụ:
+
+* **Pain Point:** Khách ngại chờ đợi khi tiệm đông.
+* **Solution:** Chức năng "Đặt lịch hẹn thử đồ" trực tiếp trên ứng dụng.
+
+Việc tích hợp các chức năng này không chỉ làm ứng dụng của Thanh chuyên nghiệp hơn mà còn hỗ trợ đắc lực cho việc vận hành tiệm Áo dài của gia đình, biến công nghệ thành công cụ tăng doanh thu thực tế. Thanh có cần mình chi tiết hóa luồng xử lý (Workflow) cho chức năng "Nhận diện khách cũ và gợi ý size" không?Thanh đã mô tả rất đầy đủ ba giai đoạn chính của hành trình khách hàng 👏. Để hệ thống hóa hơn, mình sẽ **chi tiết hóa luồng xử lý (workflow)** cho chức năng **“Nhận diện khách cũ và gợi ý size”** – đây là điểm chạm quan trọng trong giai đoạn *Tiếp cận & Chào đón*.  
+
+---
+
+## Workflow: Nhận diện khách cũ & Gợi ý size
+
+### 1. **Khách bước vào tiệm**
+- Khách quét **QR Check-in** tại cửa hoặc quầy tiếp tân.  
+- Ứng dụng kiểm tra email/ID trong database:  
+  - Nếu **khách mới** → hiển thị form nhập email + số đo cơ bản.  
+  - Nếu **khách cũ** → hệ thống lấy thông tin đã lưu (số đo, sở thích, lịch sử mua hàng).  
+
+### 2. **Thông báo cho nhân viên**
+- Push Notification gửi đến máy tính/máy tính bảng của nhân viên:  
+  - “Khách hàng [Tên] vừa vào tiệm.”  
+  - Hiển thị số đo 3 vòng, size thường mặc, sở thích (ví dụ: áo dài lụa, màu trắng).  
+- Nhân viên ngay lập tức có dữ liệu để tư vấn chính xác, không cần hỏi lại.  
+
+### 3. **Gợi ý size & sản phẩm phù hợp**
+- Ứng dụng chạy thuật toán **AI Recommendation**:  
+  - Lọc danh mục sản phẩm tồn kho theo size của khách (ví dụ: 5X–8X cho khách mập).  
+  - Ưu tiên hiển thị sản phẩm mới nhập hoặc mẫu hot trong dịp lễ gần nhất.  
+- Trên điện thoại khách: hiển thị danh sách “Sản phẩm dành riêng cho bạn”.  
+- Nhân viên có thể mở giao diện admin để xem cùng danh sách gợi ý.  
+
+### 4. **Khách thử đồ & lưu giỏ hàng**
+- Khách chọn sản phẩm để thử.  
+- Nếu chưa quyết định mua → quét mã sản phẩm để lưu vào “Giỏ hàng chờ” hoặc “Danh sách yêu thích”.  
+- Hệ thống ghi nhận trạng thái “Khách thử nhưng chưa mua”.  
+
+### 5. **Sau khi rời tiệm**
+- Nếu giỏ hàng chưa thanh toán → hệ thống gửi email/push nhắc nhở.  
+- Có thể kèm mã giảm giá ngắn hạn để khuyến khích chốt đơn online.  
+
+---
+
+## Điểm mạnh của workflow này
+- **Cá nhân hóa trải nghiệm**: khách cũ được chào đón thân thiện, tư vấn chính xác.  
+- **Tiết kiệm thời gian**: nhân viên không cần hỏi lại số đo hay sở thích.  
+- **Tăng tỷ lệ chuyển đổi**: khách dễ chọn sản phẩm phù hợp, giảm tình trạng bỏ giỏ hàng.  
+- **Kết nối online–offline (O2O)**: khách thử đồ tại tiệm nhưng vẫn có thể mua sau qua ứng dụng.  
+
+---
+
+👉 Với workflow này, Thanh sẽ biến trải nghiệm tại tiệm thành một **hành trình liền mạch**: từ check-in → tư vấn → thử đồ → giỏ hàng → nhắc nhở → mua hàng.  
+
+Thanh có muốn mình vẽ thêm **sơ đồ Customer Journey Map trực quan** (dạng hình khối từ Entry → In-store → Loyalty) để dễ hình dung toàn bộ hành trình không?1. Cảnh báo sản phẩm tồn kho lâu ngày
+Theo dõi tuổi tồn kho: hệ thống tự động ghi nhận ngày nhập hàng.
+
+Cảnh báo: nếu sản phẩm tồn kho quá X ngày (ví dụ 90 ngày) → gửi thông báo cho admin.
+
+Báo cáo: hiển thị danh sách sản phẩm tồn lâu, gợi ý chính sách xử lý.
+
+2. Chính sách giảm giá xả hàng
+Tự động áp dụng giảm giá: sản phẩm tồn kho lâu ngày có thể được gắn tag “Xả hàng” với mức giảm giá định sẵn.
+
+Quản lý chương trình khuyến mãi: admin cấu hình % giảm giá, thời gian áp dụng.
+
+Hiển thị trên giao diện khách hàng: sản phẩm xả hàng được đánh dấu nổi bật để khuyến khích mua.
+
+3. Đánh dấu sản phẩm ngừng kinh doanh
+Trạng thái sản phẩm:
+
+“Đang kinh doanh”
+
+“Xả hàng”
+
+“Ngừng kinh doanh”
+
+Quy trình: admin có thể chuyển trạng thái sản phẩm sang “Ngừng kinh doanh” → sản phẩm không còn hiển thị cho khách hàng nhưng vẫn lưu trong hệ thống để báo cáo.
+
+4. Liên kết thợ sửa đồ
+Đăng ký hợp tác: thợ sửa đồ có thể đăng ký tài khoản riêng trên hệ thống.
+
+Vai trò (actor): thợ sửa chỉ có quyền:
+
+Nhận đơn sửa đồ.
+
+Ra giá sửa đồ.
+
+Cập nhật trạng thái đơn sửa.
+
+5. Quản lý đồ đem sửa
+Quy trình đặt sửa:
+
+Khách hàng hoặc chủ tiệm tạo đơn sửa đồ (chọn sản phẩm, mô tả yêu cầu).
+
+Đơn được chuyển đến thợ sửa.
+
+Thợ sửa đưa ra giá sửa đồ.
+
+Khách hàng/chủ tiệm xác nhận.
+
+Trạng thái đơn sửa:
+
+“Gấp – làm liền”
+
+“Hẹn lấy” (có ngày giờ cụ thể).
+
+Theo dõi tiến độ: hệ thống hiển thị trạng thái đơn sửa cho cả chủ tiệm và khách hàng.
+
+6. Giao diện đặt đồ sửa
+Chủ tiệm ↔ Thợ sửa:
+
+Giao diện riêng để quản lý đơn sửa.
+
+Cho phép chat hoặc ghi chú yêu cầu chi tiết.
+
+Khách hàng:
+
+Có thể theo dõi đơn sửa qua ứng dụng.
+
+Nhận thông báo khi đồ sửa xong.
+
+7. Mục tiêu
+Quản lý vòng đời sản phẩm đầy đủ: từ nhập → bán → xả hàng → ngừng kinh doanh.
+
+Tích hợp dịch vụ sửa đồ: mở rộng hệ sinh thái, tăng giá trị cho khách hàng.
+
+Minh bạch & tiện lợi: thợ sửa có vai trò rõ ràng, khách hàng được cập nhật trạng thái liên tục.
+
+👉 Tóm lại: bạn đã bổ sung thêm quản lý sản phẩm tồn kho lâu ngày, xả hàng, ngừng kinh doanh và dịch vụ sửa đồ với thợ sửa là một tác nhân trong hệ thống. Điều này giúp hệ thống không chỉ quản lý bán hàng mà còn quản lý dịch vụ hậu mãi.khách hàng có quyền lựa chọn thợ sửa đồ cho mình, thợ sửa có điểm đánh giá sao riêng về khả năng sửa đồ. chi phí sửa đồ thuộc về thợ sửa sau khi hoàn thành đơn là 100%
+Rất rõ ràng rồi Thanh 👌. Mình sẽ bổ sung yêu cầu này thành một nhóm chức năng quản lý dịch vụ sửa đồ để hệ thống của bạn hoàn chỉnh hơn:
+
+1. Quyền lựa chọn thợ sửa đồ
+Khách hàng có thể xem danh sách thợ sửa đang hợp tác với tiệm.
+
+Mỗi thợ sửa có hồ sơ riêng: tên, kỹ năng, lịch sử sửa đồ, đánh giá sao.
+
+Khách hàng được quyền chọn thợ sửa cho đơn hàng của mình thay vì hệ thống tự gán.
+
+2. Điểm đánh giá thợ sửa
+Sau khi đơn sửa hoàn thành, khách hàng có thể đánh giá thợ sửa (1–5 sao).
+
+Điểm trung bình hiển thị công khai trong hồ sơ thợ sửa.
+
+Hệ thống lưu trữ số lượng đánh giá và nhận xét để tạo uy tín cho thợ sửa.
+
+3. Chi phí sửa đồ
+Chi phí sửa đồ thuộc về thợ sửa 100% sau khi hoàn thành đơn.
+
+Hệ thống chỉ đóng vai trò trung gian quản lý đơn và trạng thái, không giữ lại phần trăm.
+
+Thanh toán có thể thực hiện trực tiếp giữa khách hàng và thợ sửa, hoặc qua ứng dụng (sau đó chuyển toàn bộ cho thợ sửa).
+
+4. Quy trình đơn sửa đồ
+Khách hàng tạo đơn sửa (chọn sản phẩm, mô tả yêu cầu).
+
+Khách hàng chọn thợ sửa mong muốn.
+
+Thợ sửa đưa ra giá sửa đồ và thời gian hoàn thành.
+
+Khách hàng xác nhận đơn.
+
+Trạng thái đơn:
+
+Gấp – làm liền
+
+Hẹn lấy (có ngày giờ cụ thể).
+
+Sau khi hoàn thành, thợ sửa cập nhật trạng thái “Hoàn tất”.
+
+Khách hàng thanh toán → thợ sửa nhận 100% chi phí.
+
+Khách hàng đánh giá thợ sửa.
+
+5. Mục tiêu
+Minh bạch: khách hàng biết rõ ai sửa đồ cho mình và chi phí đi đâu.
+
+Cạnh tranh lành mạnh: thợ sửa có động lực nâng cao chất lượng để nhận đánh giá tốt.
+
+Trải nghiệm cá nhân hóa: khách hàng được chọn thợ sửa phù hợp với nhu cầu.
+
+👉 Tóm lại: Hệ thống sẽ cho phép khách hàng chọn thợ sửa, thợ sửa có điểm đánh giá sao riêng, và nhận toàn bộ chi phí sửa đồ sau khi hoàn thành đơn.
