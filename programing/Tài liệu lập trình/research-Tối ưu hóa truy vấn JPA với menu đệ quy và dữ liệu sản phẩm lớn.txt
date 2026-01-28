@@ -1,0 +1,65 @@
+
+1
+
+Automatic Zoom
+Copilot may make mistakes 1
+Tối ưu hóa truy vấn JPA với menu đệ quy và dữ liệu
+sản phẩm lớn
+Báo cáo kỹ thuật: Tối ưu hóa truy vấn dữ liệu trong ứng
+dụng Spring Boot sử dụng JPA cho cây menu đệ quy và
+bảng sản phẩm lớn
+Giới thiệu
+Trong các hệ thống thương mại điện tử hoặc quản trị nội dung hiện đại, việc xây dựng cây menu
+đệ quy (menu cha-con nhiều cấp) và quản lý bảng sản phẩm với quy mô hàng trăm triệu bản ghi
+là một thách thức lớn về hiệu năng và độ ổn định. Khi sử dụng Spring Boot kết hợp với
+JPA/Hibernate, các vấn đề như N+1 query, truy vấn đệ quy, phân trang, và xử lý dữ liệu lớn
+thường xuyên xuất hiện, ảnh hưởng trực tiếp đến trải nghiệm người dùng và khả năng mở rộng
+của hệ thống.
+Báo cáo này phân tích chi tiết các chiến lược tối ưu hóa truy vấn dữ liệu trong bối cảnh trên, bao
+gồm: JOIN FETCH, EntityGraph, batch fetching, native query với CTE, phân trang, streaming,
+partitioning, caching, projections/DTO, materialized view, indexing, keyset pagination, stored
+procedure, thiết kế API, và các công cụ giám sát. Mỗi giải pháp sẽ được trình bày về nguyên lý,
+ưu nhược điểm, cách triển khai trong Spring Boot, và khuyến nghị thực tiễn cho hệ thống có
+bảng sản phẩm >200 triệu bản ghi và cây menu đệ quy.
+1. Tổng quan về vấn đề hiệu năng khi dùng Spring Boot + JPA với cây
+menu đệ quy và bảng sản phẩm lớn
+1.1. Đặc thù của cây menu đệ quy và bảng sản phẩm lớn
+Cây menu đệ quy là cấu trúc dữ liệu phổ biến, nơi mỗi menu có thể có nhiều menu con, tạo
+thành một cấu trúc cây nhiều cấp. Việc truy vấn toàn bộ cây hoặc một nhánh bất kỳ thường dẫn
+đến nhiều truy vấn lồng nhau, đặc biệt khi sử dụng ORM như JPA/Hibernate với mặc định lazy
+loading[2].
+Bảng sản phẩm với hơn 200 triệu bản ghi đặt ra yêu cầu rất cao về tối ưu hóa truy vấn, phân
+trang, và xử lý bộ nhớ. Nếu không có chiến lược phù hợp, các thao tác như lọc, tìm kiếm, phân
+trang sẽ gây ra full table scan, chiếm dụng tài nguyên lớn và làm giảm hiệu năng hệ thống[4].
+Copilot may make mistakes 2
+1.2. Các vấn đề phổ biến
+▪ N+1 query: Khi truy vấn danh sách menu cha, mỗi menu con lại phát sinh một truy vấn riêng,
+dẫn đến tổng số truy vấn là N+1 (N là số menu cha)[5].
+▪ Cartesian Product: Khi JOIN FETCH nhiều collection cùng lúc, kết quả trả về có thể bị nhân
+bản (Cartesian product), gây trùng lặp và tăng tải bộ nhớ[6].
+▪ Full table scan: Truy vấn sản phẩm không có chỉ mục hoặc phân trang không tối ưu sẽ dẫn
+đến quét toàn bộ bảng, rất tốn kém với bảng lớn[4].
+▪ Memory overload: Tải toàn bộ cây menu hoặc danh sách sản phẩm lớn vào bộ nhớ sẽ gây
+OutOfMemoryError hoặc giảm hiệu năng nghiêm trọng[7].1.
+2. Nguyên nhân gây N+1 khi truy vấn cây menu cha-con nhiều cấp
+2.1. Cơ chế lazy loading trong JPA/Hibernate
+Mặc định, các quan hệ @OneToMany và @ManyToMany trong JPA sử dụng FetchType.LAZY. Khi
+truy vấn entity cha (menu), các entity con (menu con) chỉ được truy vấn khi thực sự truy cập đến
+thuộc tính đó. Điều này dẫn đến mỗi lần truy cập menu con lại phát sinh một truy vấn riêng biệt
+[8].
+Ví dụ: Khi lấy danh sách 10 menu cha, nếu mỗi menu có 5 menu con, tổng số truy vấn sẽ là 1 (lấy
+menu cha) + 10 (lấy menu con cho từng cha) = 11 truy vấn. Nếu cây menu có nhiều cấp, số truy
+vấn tăng theo cấp số nhân.
+2.2. Khi nào N+1 trở thành vấn đề nghiêm trọng
+▪ Khi số lượng menu cha lớn hoặc cây menu sâu, số truy vấn tăng đột biến.
+▪ Khi truy vấn nhiều cấp (menu →sub-menu →sub-sub-menu...), mỗi cấp lại phát sinh N+1
+truy vấn.
+▪ Khi truy vấn đồng thời nhiều collection (ví dụ: menu và sản phẩm), nguy cơ tạo ra Cartesian
+product hoặc MultipleBagFetchException[6].1.
+3. Giải pháp JOIN FETCH (JPQL/HQL) cho cây menu đệ quy
+3.1. Nguyên lý
+JOIN FETCH là cú pháp trong JPQL/HQL cho phép truy vấn entity cha và các entity con liên quan
+trong một truy vấn duy nhất, giúp loại bỏ N+1 query[8].
+Ví dụ:
+@Query("SELECT m FROM Menu m JOIN FETCH m.children WHERE m.id = :id")
+Menu findMenuWithChildren(@Param("id") Long id);
