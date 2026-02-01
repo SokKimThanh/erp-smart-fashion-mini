@@ -28,35 +28,39 @@ public class ProductService {
     private String oversizeSizesConfig;
 
     /**
-     * Tính giá sản phẩm dựa theo size
+     * Tính giá bán (price_sell) dựa theo size
      * 
      * Quy tắc: Size lớn từ 3X đến 8X sẽ cộng thêm 15% phụ phí
-     * - Size S, M, L, XL, 2XL: Giá gốc
-     * - Size 3XL, 4XL, 5XL, 6XL, 7XL, 8XL: Giá gốc + 15%
+     * - Size S, M, L, XL, 2XL: Giá nhập + Lợi nhuận cơ bản
+     * - Size 3XL, 4XL, 5XL, 6XL, 7XL, 8XL: (Giá nhập + Lợi nhuận) * 1.15
      * 
-     * @param basePrice Giá gốc của sản phẩm
+     * @param priceImport Giá nhập của sản phẩm
      * @param size Kích thước sản phẩm
-     * @return Giá cuối cùng sau khi tính toán
+     * @return Giá bán cuối cùng
      */
-    public BigDecimal calculatePrice(BigDecimal basePrice, String size) {
-        if (basePrice == null || size == null) {
-            throw new IllegalArgumentException("Giá và size không được null");
+    public BigDecimal calculatePriceSell(BigDecimal priceImport, String size) {
+        if (priceImport == null || size == null) {
+            throw new IllegalArgumentException("Giá nhập và size không được null");
         }
+
+        // Giả sử lợi nhuận cơ bản 30%
+        BigDecimal baseProfit = priceImport.multiply(new BigDecimal("0.30"));
+        BigDecimal basePriceSell = priceImport.add(baseProfit);
 
         // ============== LOGIC TÍNH PHỤ PHÍ SIZE LớN ==============
         // Nếu size > 2X thì cộng thêm % phụ phí (cấu hình động)
         if (isOversizeProduct(size)) {
             // Tính phụ phí theo tỷ lệ cấu hình
-            BigDecimal surcharge = basePrice.multiply(new BigDecimal(String.valueOf(oversizeSurchargeRate)));
-            // Giá cuối = Giá gốc + Phụ phí
-            BigDecimal finalPrice = basePrice.add(surcharge);
+            BigDecimal surcharge = basePriceSell.multiply(new BigDecimal(String.valueOf(oversizeSurchargeRate)));
+            // Giá cuối = Giá bán cơ bản + Phụ phí
+            BigDecimal finalPrice = basePriceSell.add(surcharge);
             
             return finalPrice.setScale(2, RoundingMode.HALF_UP);
         }
         // =========================================================
 
-        // Size thông thường: trả về giá gốc
-        return basePrice.setScale(2, RoundingMode.HALF_UP);
+        // Size thông thường: trả về giá bán cơ bản
+        return basePriceSell.setScale(2, RoundingMode.HALF_UP);
     }
 
     /**
@@ -86,49 +90,9 @@ public class ProductService {
     }
 
     /**
-     * Tính PHỤ PHÍ cho một size cụ thể
+     * ⭐ ÁP DỤNG QUY TẮC TÍNH GIÁ BÁN VÀ CẬP NHẬT VÀO ENTITY ⭐
      * 
-     * @param basePrice Giá gốc
-     * @param size Kích thước
-     * @return Số tiền phụ phí (0 nếu size thông thường)
-     */
-    public BigDecimal calculateSurcharge(BigDecimal basePrice, String size) {
-        if (basePrice == null || size == null) {
-            return BigDecimal.ZERO;
-        }
-
-        if (isOversizeProduct(size)) {
-            return basePrice.multiply(new BigDecimal(String.valueOf(oversizeSurchargeRate)))
-                           .setScale(2, RoundingMode.HALF_UP);
-        }
-
-        return BigDecimal.ZERO;
-    }
-
-    /**
-     * Tính giá cho một biến thể sản phẩm
-     * 
-     * @param variant Biến thể sản phẩm (chứa thông tin size, màu sắc)
-     * @param basePrice Giá gốc
-     * @return Giá cuối cùng
-     */
-    public BigDecimal calculateVariantPrice(ProductVariant variant, BigDecimal basePrice) {
-        if (variant == null) {
-            throw new IllegalArgumentException("ProductVariant không được null");
-        }
-
-        return calculatePrice(basePrice, variant.getSize());
-    }
-
-    /**
-     * ⭐ ÁP DỤNG QUY TẮC TÍNH GIÁ VÀ CẬP NHẬT VÀO ENTITY ⭐
-     * 
-     * Method này sẽ:
-     * 1. Tính phụ phí dựa trên size
-     * 2. Cập nhật vào variant.priceAdjustment
-     * 3. Đảm bảo dữ liệu đồng bộ với DB
-     * 
-     * Gọi method này TRƯỚC KHI lưu ProductVariant vào database!
+     * Theo ERD: Tự động tính price_sell dựa trên price_import và size
      * 
      * @param variant Biến thể sản phẩm cần áp dụng quy tắc giá
      */
@@ -137,24 +101,25 @@ public class ProductService {
             throw new IllegalArgumentException("ProductVariant không được null");
         }
 
-        // Lấy giá gốc từ variant
-        Double basePrice = variant.getBasePrice();
-        if (basePrice == null) {
-            basePrice = 0.0;
+        // Lấy giá nhập từ variant
+        BigDecimal priceImport = variant.getPriceImport();
+        if (priceImport == null) {
+            throw new IllegalArgumentException("price_import không được null");
         }
 
-        // Tính phụ phí dựa trên size
-        BigDecimal surcharge = calculateSurcharge(
-            new BigDecimal(String.valueOf(basePrice)), 
-            variant.getSize()
-        );
+        // ⭐ TÍNH GIÁ BÁN dựa trên size
+        BigDecimal priceSell = calculatePriceSell(priceImport, variant.getSize());
+        
+        // Cập nhật vào entity
+        variant.setPriceSell(priceSell);
 
-        // ⭐ CẬP NHẬT PHỤ PHÍ VÀO ENTITY
-        variant.setPriceAdjustment(surcharge.doubleValue());
-
-        // Log để debug (có thể xóa sau)
-        System.out.printf("[Pricing] Size: %s | Base: %.2f | Surcharge: %.2f | Total: %.2f%n",
-            variant.getSize(), basePrice, surcharge.doubleValue(), variant.getTotalPrice());
+        // Log để debug
+        System.out.printf("[Pricing] Size: %s | Import: %s | Sell: %s | Markup: %.1f%%%n",
+            variant.getSize(), 
+            priceImport, 
+            priceSell,
+            priceSell.subtract(priceImport).divide(priceImport, 4, RoundingMode.HALF_UP)
+                .multiply(new BigDecimal("100")).doubleValue());
     }
 
     /**

@@ -2,34 +2,40 @@ package com.smartfashion.erp.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import java.util.UUID;
+import java.math.BigDecimal;
 
+/**
+ * ProductVariant - Biến thể sản phẩm
+ * Theo ERD: Quản lý SKU, Size, Màu, Chất liệu, Giá nhập/bán, Tồn kho
+ */
 @Entity
 @Data
 public class ProductVariant {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
 
-    private String size;      // S, M, L... 8X
-    private String material;  // Gấm, Lụa, Voan...
+    @ManyToOne
+    @JoinColumn(name = "material_id")
+    private Material material;
+
+    private String sku;           // Mã SKU duy nhất
+    private String size;          // S, M, L, XL, 5X...
+    private String color;         // Màu sắc
     
-    // Tách giá thành 2 phần để minh bạch
-    private Double basePrice;       // Giá niêm yết của sản phẩm gốc
-    private Double priceAdjustment; // Phụ phí cho Size lớn hoặc vải quý
+    // Giá theo ERD gốc
+    private BigDecimal priceImport;  // Giá nhập
+    private BigDecimal priceSell;    // Giá bán
     
-    private Integer stock;
+    private Integer stockQuantity;   // Tồn kho
+    
+    // AI Features
+    private String aiEraPrediction;  // Dự đoán niên đại: "2024", "2025"...
 
     @Version
-    private Long version;     // Rất tốt, giữ nguyên để làm Offline-First
-
-    // Hàm tiện ích (Helper method) - Không lưu xuống DB
-    @Transient 
-    public Double getTotalPrice() {
-        return (basePrice != null ? basePrice : 0) + (priceAdjustment != null ? priceAdjustment : 0);
-    }
+    private Long version;            // Optimistic locking cho Offline-First
 }
