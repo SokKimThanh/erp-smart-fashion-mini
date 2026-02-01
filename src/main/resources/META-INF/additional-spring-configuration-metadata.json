@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "product.pricing.oversize.surcharge-rate",
+    "type": "java.lang.String",
+    "description": "A description for 'product.pricing.oversize.surcharge-rate'"
+  },
+  {
+    "name": "product.pricing.oversize.sizes",
+    "type": "java.lang.String",
+    "description": "A description for 'product.pricing.oversize.sizes'"
+  }
+]}

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.util.UUID;
 
+@SuppressWarnings("unused")
 @Entity
 @Data
 public class Category {
