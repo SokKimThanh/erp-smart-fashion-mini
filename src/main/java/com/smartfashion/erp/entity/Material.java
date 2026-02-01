@@ -11,8 +11,9 @@ import lombok.Data;
 @Data
 public class Material {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(length = 36)
+    private String id;
 
     private String name;        // Gấm, Lụa, Voan...
     private String description; // Mô tả chi tiết

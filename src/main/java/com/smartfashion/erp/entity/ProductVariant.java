@@ -12,8 +12,9 @@ import java.math.BigDecimal;
 @Data
 public class ProductVariant {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(length = 36)
+    private String id;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
