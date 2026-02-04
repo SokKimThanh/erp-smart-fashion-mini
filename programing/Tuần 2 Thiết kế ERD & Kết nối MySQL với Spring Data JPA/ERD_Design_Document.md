@@ -72,6 +72,9 @@ erDiagram
         text description
         uuid category_id FK
         string status "ACTIVE, CLEARANCE, DISCONTINUED"
+        decimal cached_min_price "Denormalized for Performance"
+        decimal cached_max_price
+        int total_stock_quantity
         datetime created_at
     }
 
@@ -237,4 +240,18 @@ erDiagram
 4.  **Offline Sync**: Cần cơ chế Change Data Capture (CDC) hoặc tabl `SyncLog` để đồng bộ dữ liệu hai chiều (Client <-> Server).
 
 ---
-*Tài liệu này được biên soạn dựa trên yêu cầu từ Tuần 1 và cập nhật tính năng Offline/Lifecycle vào Tuần 2.*
+## 5. Chiến lược Tối ưu Hiệu năng (Tránh N+1 & Slow Query) - Tuần 3 Update
+
+Hệ thống được thiết kế đặc biệt để xử lý **>200 triệu bản ghi** mà không gặp vấn đề N+1 hay Slow Query:
+
+1.  **Menu Đệ Quy (Recursive Menu)**:
+    *   Sử dụng cấu trúc `parent_id` trong bảng `CATEGORY`.
+    *   *Chiến lược*: Sử dụng **CTE (Common Table Expressions)** hoặc **JOIN FETCH** trong JPA để tải toàn bộ cây menu chỉ với 1 truy vấn database, thay vì gọi đệ quy N lần.
+
+2.  **Danh Sách Sản Phẩm (Denormalization)**:
+    *   **Vấn đề**: Khi hiển thị danh sách sản phẩm, thường cần hiển thị "Giá từ 100k - 200k". Nếu tính toán `MIN(price)` và `MAX(price)` từ bảng `PRODUCT_VARIANT` (quan hệ 1-N) cho hàng nghìn sản phẩm cùng lúc, database sẽ bị quá tải (Slow Query).
+    *   **Giải pháp**: Sử dụng các trường `cached_min_price`, `cached_max_price`, `total_stock_quantity` ngay trên bảng `PRODUCT`.
+    *   *Cơ chế*: Khi cập nhật Variant, hệ thống sẽ tự động tính toán lại và update ngược lên bảng Product (trigger hoặc application logic). Kết quả là truy vấn danh sách sản phẩm cực nhanh (O(1)) vì không cần JOIN.
+
+---
+*Tài liệu này được biên soạn dựa trên yêu cầu từ Tuần 1 và cập nhật tính năng Offline/Lifecycle/Performance vào Tuần 2 & 3.*
